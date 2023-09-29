@@ -1,0 +1,8 @@
+*.pickle
+*.csv
+*.ipynb
+*.txt
+./ner_nlp
+./ipynb_checkpoints
+*.pyc
+*/config.ini
