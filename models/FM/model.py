@@ -80,16 +80,19 @@ class FM(nn.Module):
             logloss = log_loss(self.df_valid_label, pred_array)
 
             if AUC > best_AUC:
+                print(f'AUC is better than best_AUC AUC = {AUC} best_AUC = {best_AUC}' )
+                print()
                 best_AUC = AUC
                 torch.save(self.state_dict(), f"./{self.__class__.__name__}_best_model.pt")
                 num_trials = 0
 
             else:
+                print(f'AUC is lesser than best_AUC AUC = {AUC} best_AUC = {best_AUC}')
+                print()
                 num_trials += 1
 
             if num_trials >= self.early_stop_trial and self.early_stop_trial > 0:
                 print(f'Early stop at epoch:{epoch}')
-                self.restore()
                 break
 
             print(f'epoch {epoch} train_loss = {loss:.4f} valid_AUC = {AUC:.4f} valid_log_loss = {logloss:.4f}')
@@ -127,14 +130,15 @@ class FM(nn.Module):
             with torch.no_grad():
                 pred_array[batch_idxes] = self.forward(batch_data).cpu().numpy()
 
-        print(pred_array[batch_idxes])
+        pred_array = np.where(pred_array >= 0.5 , 1.0 , 0.0)
+
 
 
         return pred_array
 
-    def restore(self):
-        with open(f"./{self.__class__.__name__}_best_model.pt", 'rb') as f:
-            state_dict = torch.load(f)
+    def restore(self,bestmodel , device ):
+        with open(bestmodel, 'rb') as f:
+            state_dict = torch.load(f , map_location = device)
         self.load_state_dict(state_dict)
 
 class FeaturesLinear(nn.Module):

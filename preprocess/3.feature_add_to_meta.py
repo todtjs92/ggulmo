@@ -10,7 +10,7 @@ if __name__ == '__main__':
     print(df_meta.columns)
 
 
-    # category
+    # parse and encode category
     category1_set = set()
     category2_set = set()
 
@@ -39,8 +39,6 @@ if __name__ == '__main__':
         category = category2_list[category_index]
         category2_dict[category] = category_index + len(category1_dict) + 3
 
-    print(category1_dict)
-    print(category2_dict)
 
 
     def get_categorylist(category2_nm):
@@ -67,7 +65,7 @@ if __name__ == '__main__':
     df_meta['category_encoding'] = df_meta_category_encoding
 
 
-    # time
+    # parse time
     df_meta['uploadTime'] = df_meta['uploadTime'].astype(str)
     current_dt = datetime.now()
 
