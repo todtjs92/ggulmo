@@ -11,7 +11,6 @@ import torch
 
 if __name__ == "__main__":
 
-
     # seed
     random_seed = 1
     torch.manual_seed(random_seed)
@@ -41,8 +40,10 @@ if __name__ == "__main__":
         state_dict = pickle.load(f)
 
     field_dims = state_dict['max_dimension']
+    categorical_vars_length = state_dict['categorical_vars_length']
+    categorical_vars_length = 3
     print(field_dims)
-    #field_dims = 258611
+    print(categorical_vars_length)
 
     # hyperparm 후에 input으로 받도록 개선
     learning_rate = 0.01
@@ -52,16 +53,10 @@ if __name__ == "__main__":
     num_epochs = 100
     embed_dim = 16
 
-
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
     print(device)
-    fm = FM(df_train_feat, df_train_label, df_valid_feat, df_valid_label, field_dims, num_epochs=num_epochs, embed_dim=embed_dim,
+    fm = FM(df_train_feat, df_train_label, df_valid_feat, df_valid_label, field_dims, num_epochs=num_epochs, embed_dim=embed_dim,categorical_vars_length=categorical_vars_length,
                      learning_rate= learning_rate , reg_lambda= reg_lambda, batch_size=batch_size, early_stop_trial=10, device=device)
     fm.fit()
     print('end')
-
-    # df_size
-
-    # hyper param
-
 

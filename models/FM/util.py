@@ -24,7 +24,6 @@ def train_valid_test_split(df):
     df_train , df_temp = train_test_split(df,test_size =0.2 , random_state=1,shuffle=True, stratify= df['label'] )
     df_valid , df_test = train_test_split(df_temp , test_size=0.5, random_state = 1 , shuffle = True , stratify = df_temp['label'] )
 
-
     return df_train , df_valid ,  df_test
 
 

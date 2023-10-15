@@ -28,6 +28,7 @@ if __name__ == "__main__":
         state_dict = pickle.load(f)
     field_dims = state_dict['max_dimension']
     user_dims = state_dict['user_dimension']
+    categorical_vars_length = state_dict['categorical_vars_length']
     print(user_dims)
 
     learning_rate = 0.01
@@ -39,7 +40,7 @@ if __name__ == "__main__":
 
     device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
     print(device)
-    model =  FM('', '', '', '', field_dims, num_epochs=num_epochs, embed_dim=embed_dim,
+    model =  FM('', '', '', '', field_dims, num_epochs=num_epochs, embed_dim=embed_dim, categorical_vars_length = categorical_vars_length,
                      learning_rate= learning_rate , reg_lambda= reg_lambda, batch_size=batch_size, early_stop_trial=10, device=device)
 
     model.restore('../../bestmodel/FM_best_model.pt', device )
