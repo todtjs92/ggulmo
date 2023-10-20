@@ -13,16 +13,16 @@ if __name__ == '__main__':
     host = config['mongoDB']['host']
     port = config['mongoDB']['port']
     logDB = config['mongoDB']['logDB']
-    logCollection = config['mongoDB']['logCollection']
+    itemCollection = config['mongoDB']['itemCollection']
 
     mongo_uri = f"mongodb://{username}:{password}@{host}:{port}"
     client = pymongo.MongoClient(mongo_uri)
 
 
-    logDB = client["logs"]
-    itemCollection = logDB["items"]
+    database = client[logDB]
+    collection = database[itemCollection]
 
-    items_docs = itemCollection.find()
+    items_docs = collection.find()
 
     count = 0
     result_meta = []
@@ -41,7 +41,7 @@ if __name__ == '__main__':
 
     df_result_meta = pd.DataFrame(result_meta)
     df_result_meta.columns = ["_id" , "title" , "category1_nm" , "category2_nm" , "community_nm" , "href"  , "regions" , "salePrice" ,"saleStatus" ,  "tdview" , "uploadTime"]
-    df_result_meta.to_pickle('../data/df_result_meta.pickle')
+    df_result_meta.to_pickle('../data/df_meta.pickle')
 
 
 

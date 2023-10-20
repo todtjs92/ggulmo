@@ -1,6 +1,9 @@
-def get_item_parser(response):
+from typing import Tuple , List
+from datetime import datetime
+
+def get_item_parser(response : dict ) -> Tuple[str, str, str, dict, dict, str, List[str] , dict , datetime , datetime ] :
     '''
-    Parser for get_item - 클릭로그
+    Parser for get_item - user 가 클릭한 상품을 parsing 해주는 코드
     '''
     # user_info
     func = response['func']
@@ -40,7 +43,7 @@ def get_item_parser(response):
 
 def get_items_parser(response):
     '''
-    Parser for get_items - 검색
+    Parser for get_items - user가 검색한 상품을 parsing 해주는 코드
     '''
 
     # user_info
@@ -86,7 +89,7 @@ def get_items_parser(response):
 
 def get_related_items_parser(response):
     '''
-    Parser for get_items
+    Parser for related_tiems 연관상품 노출과 관련한 로그를 파싱해줌.
     '''
     func = response['func']
 
@@ -130,7 +133,7 @@ def get_related_items_parser(response):
 
 def get_newest_items_parser(response):
     '''
-    Parser for newest_items
+    Parser for newest_items 메인화면에서 로그를 파싱해줌.
     '''
 
     func = response['func']
@@ -170,6 +173,9 @@ def get_newest_items_parser(response):
     return func, uuid, url, query, item_id, item_id_ret_list, current_time, cookie
 
 def meta_parser(response):
+    '''
+    상품 meta정보에 관한것을 parsing 해줌
+    '''
 
     _id = response['_id']
     title = response['title']

@@ -1,14 +1,19 @@
 import pandas as pd
+import pickle
 from datetime import datetime, timezone
 
 
 if __name__ == '__main__':
 
+    '''
+    카테고리 정보 모델에 넣주기 위해 처리해줌 
+    +
+    시간 정보도 처리해줌 -> 시간은 우선 안넣기로 함. 
+    
+    '''
 
-    df_meta = pd.read_pickle('../data/df_meta_view.pickle')
-
-    print(df_meta.columns)
-
+    # 조회수 add 한 meta 테이블
+    df_meta = pd.read_pickle('../data/df_metaview.pickle')
 
     # parse and encode category
     category1_set = set()
@@ -24,11 +29,14 @@ if __name__ == '__main__':
     df_meta['category2_nm'].map(lambda x: get_category(x))
     category1_list = list(category1_set)
     category2_list = list(category2_set)
-
     all_categories = len(category1_list + category2_list)
 
     category1_dict = {}
     category2_dict = {}
+
+    # 모델에 넣주기 위해 category 가져와서 , index 변환해주는 부분임.
+    # 0,1,2,3 = 카테고리 정보 없는 경우를 위한 인덱스 번호임 . 이를 비워주기 위해 3을 더해줌.
+    # 두번쨰카테고리의 경우 1번째 카테고리와 중복 피하기 위해 1번째 카테고리 길이만큼 더해줌.
 
     for category_index in range(len(category1_list)):
         category = category1_list[category_index]
@@ -38,7 +46,6 @@ if __name__ == '__main__':
     for category_index in range(len(category2_list)):
         category = category2_list[category_index]
         category2_dict[category] = category_index + len(category1_dict) + 3
-
 
 
     def get_categorylist(category2_nm):
@@ -60,34 +67,48 @@ if __name__ == '__main__':
                 break
         return category_list
 
-
     df_meta_category_encoding = df_meta['category2_nm'].map(lambda x: get_categorylist(x))
     df_meta['category_encoding'] = df_meta_category_encoding
 
+    # 사전 저장함 .
+    with open('../data/category1_dict.pickle','wb') as f:
+        pickle.dump(category1_dict,f)
+
+    with open('../data/category2_dict.pickle','wb') as f:
+        pickle.dump(category2_dict,f)
+
+
+
+    # 시간부분은 주석 처리하겠음
 
     # parse time
-    df_meta['uploadTime'] = df_meta['uploadTime'].astype(str)
-    current_dt = datetime.now()
+    # string으로 안바꾸면 에러나는 부분이 있어서 우선 string으로 다 바꿈.
 
-
-    def get_timediff(date_str):
-        try:
-            date_obj = datetime.strptime(date_str, "%Y-%m-%d %H:%M:%S.%f")
-        except:
-            try:
-                date_obj = datetime.strptime(date_str, "%Y-%m-%d %H:%M:%S")
-            except:
-                date_obj = datetime.fromisoformat(date_str)
-                date_obj = date_obj.replace(tzinfo=None)
-
-        delta = current_dt - date_obj
-        if delta.days >= 180:
-            return 180
-        return delta.days
-
-
-    df_meta['time_diff'] = df_meta['uploadTime'].map(lambda x: get_timediff(x))
-
+    # df_meta['uploadTime'] = df_meta['uploadTime'].astype(str)
+    # current_dt = datetime.now()
+    #
+    #
+    # def get_timediff(date_str):
+    #     try:
+    #         date_obj = datetime.strptime(date_str, "%Y-%m-%d %H:%M:%S.%f")
+    #     except:
+    #         try:
+    #             date_obj = datetime.strptime(date_str, "%Y-%m-%d %H:%M:%S")
+    #         except:
+    #             date_obj = datetime.fromisoformat(date_str)
+    #             date_obj = date_obj.replace(tzinfo=None)
+    #
+    #     delta = current_dt - date_obj
+    #     # 180 반년 으로 두어봤음. 회사에서 쓰던거는 240 ,
+    #     # 이거는 데이터 보면서 정해야긴함 .
+    #     #
+    #     if delta.days >= 180:
+    #         return 180
+    #     return delta.days
+    #
+    #
+    # df_meta['time_diff'] = df_meta['uploadTime'].map(lambda x: get_timediff(x))
+    #
 
 
     df_meta.to_pickle('../data/df_meta_feature.pickle')

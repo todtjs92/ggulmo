@@ -21,19 +21,20 @@ if __name__ == '__main__':
     client = pymongo.MongoClient(mongo_uri)
 
 
-    logDB = client["logs"]
-    logCollection = logDB["backendQuery"]
+    database = client[logDB]
+    collection = database[logCollection]
 
 
-    # Calculate the date for "yesterday"
+    # Calculate the date for "month"
     start_time = datetime.now() - timedelta(30)
     # Query for documents where the `date` field is greater than "yesterday"
-    responses = logCollection.find({"currentTime": {"$gt": start_time}})
+    responses = collection.find({"currentTime": {"$gt": start_time}})
 
     #responses = logCollection.find()
 
     count = 0
 
+    # list for each logs
     result_get_item = []
     result_get_items = []
     result_get_related_items = []
@@ -78,23 +79,21 @@ if __name__ == '__main__':
 
     # pandas 테이블 형태를 pickle로 저장할거임 .
 
-
-
     df_result_get_item = pd.DataFrame(result_get_item)
     df_result_get_item.columns = ["func", "uuid", "url", "query", "item_id", "href", "item_id_ret_list", "cookie", "current_time", "upload_time"]
-    df_result_get_item.to_pickle('../data/df_result_get_item.pickle')
+    df_result_get_item.to_pickle('../data/df_get_item.pickle')
 
 
     df_result_get_items =  pd.DataFrame(result_get_items)
     df_result_get_items.columns = ["func", "uuid", "url", "query", "item_id", "item_id_ret_list", "current_time", "cookie"]
-    df_result_get_items.to_pickle('../data/df_result_get_items.pickle')
+    df_result_get_items.to_pickle('../data/df_get_items.pickle')
 
 
     df_result_get_related_items =  pd.DataFrame(result_get_related_items)
     df_result_get_related_items.columns = ["func", "uuid", "url", "query", "item_id", "item_id_ret_list", "current_time", "cookie"]
-    df_result_get_related_items.to_pickle('../data/df_result_get_related_items.pickle')
+    df_result_get_related_items.to_pickle('../data/df_get_related_items.pickle')
 
 
     df_result_get_newest_items =  pd.DataFrame(result_get_newest_items)
     df_result_get_newest_items.columns = ["func", "uuid", "url", "query", "item_id", "item_id_ret_list", "current_time", "cookie"]
-    df_result_get_newest_items.to_pickle('../data/df_result_get_newest_items.pickle')
+    df_result_get_newest_items.to_pickle('../data/df_get_newest_items.pickle')

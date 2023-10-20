@@ -2,22 +2,29 @@ import pandas as pd
 
 if __name__ == '__main__':
 
+    '''
+    click 데이터를 바탕으로 postivie data set , 
+    impression 데이터를 바탕으로 negative data set 
+    을 만듬.  
+    '''
+
     # click data
-    df_result_get_item = pd.read_pickle('../data/df_result_get_item.pickle')
+    df_result_get_item = pd.read_pickle('../data/df_get_item.pickle')
 
     # impression data
-    df_result_get_items = pd.read_pickle('../data/df_result_get_items.pickle')
-    df_result_get_related_items = pd.read_pickle('../data/df_result_get_related_items.pickle')
-    df_result_get_newest_items = pd.read_pickle('../data/df_result_get_newest_items.pickle')
-    # newest 지금은 제외
-    # ''제거
+    df_result_get_items = pd.read_pickle('../data/df_get_items.pickle')
+    df_result_get_related_items = pd.read_pickle('../data/df_get_related_items.pickle')
+    df_result_get_newest_items = pd.read_pickle('../data/df_get_newest_items.pickle')
+
+
+    # user가 '' 인 것들 제거
 
     df_result_get_item = df_result_get_item.loc[df_result_get_item['uuid']!= '']
     df_result_get_items = df_result_get_items.loc[df_result_get_items['uuid']!= '']
     df_result_get_related_items = df_result_get_related_items.loc[df_result_get_related_items['uuid']!= '']
     df_result_get_newest_items = df_result_get_newest_items.loc[df_result_get_newest_items['uuid']!='']
 
-    # drop duplicate
+    # 중복인 로그는 제거하였음, current_time 이랑 user id 가 같은 경우.
     df_result_get_item = df_result_get_item.drop_duplicates(['uuid','current_time'])
     df_result_get_items = df_result_get_items.drop_duplicates(['uuid','current_time'])
     df_result_get_related_items = df_result_get_related_items.drop_duplicates(['uuid','current_time'])
@@ -27,7 +34,7 @@ if __name__ == '__main__':
     # 클릭이 1회 이상인 사람 구하기 ,
     df_group = df_result_get_item.groupby(by='uuid').count()
     df_group_moreone_user = df_group.loc[df_group['href']>=2]
-    # 기준 체크 해봐야는데 한 1000개 미만인사람만 걸러보자
+    # 기준 체크 해봐야는데 한 1000개 미만인사람만 걸러보자 # 기준 정하기 .
     df_group_moreone_user_limit = df_group_moreone_user.loc[df_group_moreone_user['href']< 1000]
 
     user_list = df_group_moreone_user_limit.index.values
