@@ -17,6 +17,15 @@ if __name__ == "__main__":
     for uuid , href in zip(df_positive['uuid'] , df_positive['href']):
         user_click_items[uuid].add(href)
 
+    # 클릭 3회 이하 유저들 따로 분리해둠 . - interaction 쪽에서 크게 영향안 받어 같은 추천 결과가 나갈거임 .
+    cold_users = set()
+    for user_id , href_set in user_click_items.items():
+        item_length = len(href_set)
+        if item_length <= 3 :
+            cold_users.add(user_id)
+    with open('../data/cold_users.pickle','wb') as f:
+        pickle.dump(cold_users, f )
+
     # 클릭 2회이상인 유저여도 같은 상품 2번이면 나올수 있음 .
 
     with open('../data/user_click_items.pickle','wb') as f:

@@ -14,6 +14,8 @@ if __name__ == "__main__":
 
     df_positive = pd.read_pickle('../data/df_positive.pickle')
     df_negative = pd.read_pickle('../data/df_negative_filter.pickle')
+    positive_datas = len(df_positive)
+    negative_datas = len(df_negative)
 
     df_positive =  df_positive[['uuid','href']]
     df_negative =  df_negative[['uuid','href']]
@@ -112,6 +114,9 @@ if __name__ == "__main__":
     state_dict['continuous_vars_length'] = continuous_vars_length
     state_dict['categorical_vars'] = categorical_vars
     state_dict['categorical_vars_length'] = categorical_vars_length
+    state_dict['positive_datas'] = positive_datas
+    state_dict['negative_datas'] = negative_datas
+
 
     with open ('../data/state_dict.pickle','wb') as f:
         pickle.dump(state_dict,f)
