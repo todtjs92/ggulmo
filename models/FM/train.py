@@ -7,6 +7,7 @@ import pandas as pd
 import numpy as np
 import random
 import torch
+from torch.utils.data import DataLoader
 
 
 if __name__ == "__main__":
@@ -60,3 +61,116 @@ if __name__ == "__main__":
     fm.fit()
     print('end')
 
+    #
+    # predict
+    #
+
+    df_feature = pd.read_pickle('../../data/df_feature_final.pickle')
+    df_feature = df_feature.loc[df_feature['label'] == 1]
+
+    # href columns
+    # item
+    df_href = df_feature[['user_id','href','large1','large2','middle1','middle2','click_count2idx','click_count7idx','click_count30idx','click_count2','click_count7','click_count30']]
+    df_href = df_href.drop_duplicates('href')
+
+
+    # user
+    df_user = df_feature[['user_id']]
+    df_user = df_user.drop_duplicates('user_id')
+
+    # model import
+
+    with open('../../data/state_dict.pickle', 'rb') as f:
+        state_dict = pickle.load(f)
+    field_dims = state_dict['max_dimension']
+    user_dims = state_dict['user_dimension']
+    categorical_vars_length = state_dict['categorical_vars_length']
+    print(user_dims)
+
+    learning_rate = 0.01
+    reg_lambda = 0.001
+    batch_size = 512
+    early_stop_trial = 10
+    num_epochs = 100
+    embed_dim = 16
+
+    device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
+    print(device)
+    fm.eval()
+
+######
+    # click item dict
+    with open('../../data/user_click_items.pickle', 'rb') as f:
+        user_click_items = pickle.load(f)
+
+    # user_encodes , item encodes
+    with open('../../data/user_encodes.pickle', 'rb') as f:
+        user_encodes = pickle.load(f)
+    with open('../../data/item_encodes.pickle', 'rb') as f:
+        item_encodes = pickle.load(f)
+
+    def decoding(encoder, input):
+        result = encoder.inverse_transform(input)
+        return result
+
+    # category TOP 20 per user
+    #  user | category | href
+    columns = ['user_id','href','large1','large2','middle1','middle2','click_count2idx','click_count7idx','click_count30idx','click_count2','click_count7','click_count30','score']
+    #columns = ['user_id','href','large1','large2','middle1','middle2','salePriceidx','clickcountidx','timediffidx','salePrice','click_count','time_diff','score']
+    top50df = pd.DataFrame(columns = columns)
+    count = 0
+    for user_id in df_user['user_id'].values:
+
+        # add userid
+        df_href['user_id'] = user_id
+        df_pred = df_href[['user_id','href','large1','large2','middle1','middle2','click_count2idx','click_count7idx','click_count30idx','click_count2','click_count7','click_count30']]
+
+        # df to torch
+        pred_data = df_pred.values
+        # batch_size = 2048?
+        pred_data_loader = DataLoader(range(pred_data.shape[0]), batch_size= 2048, shuffle=False)
+        pred_array = np.zeros(pred_data.shape[0])
+
+        for b, batch_idxes in enumerate(pred_data_loader):
+            batch_data = torch.tensor(pred_data[batch_idxes], dtype=torch.float, device=device)
+
+            with torch.no_grad():
+                pred_array[batch_idxes] = fm.forward(batch_data).cpu().numpy()
+
+
+        # top 50
+
+        df_pred['score'] = pred_array
+
+        # filter by seen data
+        user_decodes = decoding(user_encodes, [user_id])[0]
+        click_items = user_click_items[user_decodes]
+        click_items = set(click_items)
+
+        df_pred['href'] -= user_dims
+        item_decodes = decoding(item_encodes, df_pred['href'].values)
+        df_pred['user_id'] = user_decodes
+        df_pred['href'] = item_decodes
+
+        df_pred = df_pred.loc[df_pred['href'].isin(click_items) == False]
+
+        # 1      top 30
+        #df_pred = df_pred.sort_values(by='score' , ascending=False)
+        #df_pred = df_pred[:30]
+
+        #
+
+        # 2       top 10 each category
+        df_pred = df_pred.groupby('middle1').head(20).reset_index(drop=True)
+
+        #user_decodes = decoding(user_encodes , df_pred['user_id'].values)
+        #df_pred = df_pred.sort_values(by='middle1')
+        top50df = pd.concat([top50df, df_pred ])
+
+        print(count)
+        count +=1
+
+    top50df.to_csv('top20_each.csv',index=False)
+    import datetime
+    current_time = datetime.datetime.now()
+    print(current_time)
