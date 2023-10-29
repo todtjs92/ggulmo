@@ -18,12 +18,13 @@ if __name__ == '__main__':
     mongo_uri = f"mongodb://{username}:{password}@{host}:{port}"
     client = pymongo.MongoClient(mongo_uri)
 
-
     database = client[logDB]
     collection = database[itemCollection]
 
+    # 30일 이상 애들만 가져옴 . 
+    start_time = datetime.now() - timedelta(31)
     items_docs = collection.find()
-
+    #items_docs = collection.find({"uploadTime": {"$gt": start_time}})
     count = 0
     result_meta = []
 

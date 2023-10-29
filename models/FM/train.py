@@ -8,10 +8,13 @@ import numpy as np
 import random
 import torch
 from torch.utils.data import DataLoader
+import sys
+import datetime
+    
 
 
 if __name__ == "__main__":
-
+    start_time = datetime.datetime.now()
     # seed
     random_seed = 1
     torch.manual_seed(random_seed)
@@ -27,7 +30,10 @@ if __name__ == "__main__":
     # return dataframe
     df_train , df_valid , df_test  = train_valid_test_split(df )
 
-
+    # cold users 
+    with open('../../data/cold_users.pickle','rb') as f:
+        cold_users = pickle.load(f)
+ 
     # return values , numpy array
 
     df_train_feat , df_train_label = split_feature_label(df_train)
@@ -59,11 +65,22 @@ if __name__ == "__main__":
     fm = FM(df_train_feat, df_train_label, df_valid_feat, df_valid_label, field_dims, num_epochs=num_epochs, embed_dim=embed_dim,categorical_vars_length=categorical_vars_length,
                      learning_rate= learning_rate , reg_lambda= reg_lambda, batch_size=batch_size, early_stop_trial=10, device=device)
     fm.fit()
-    print('end')
+    print( start_time  - datetime.datetime.now() , "Train end ")
 
-    #
+    # 30 days = 2days 
+    # make weak 30days weight . 
+    print(fm.linear.fc.weight.data[-3:])
+
+    weight_2day = fm.linear.fc.weight.data[-3]
+    weight_30day = fm.linear.fc.weight.data[-1]
+
+    fm.linear.fc.weight.data[-3] = weight_30day
+    fm.linear.fc.weight.data[-1] = weight_2day
+    print(fm.linear.fc.weight.data[-3:])
+  
     # predict
-    #
+
+    fm.eval()
 
     df_feature = pd.read_pickle('../../data/df_feature_final.pickle')
     df_feature = df_feature.loc[df_feature['label'] == 1]
@@ -87,17 +104,6 @@ if __name__ == "__main__":
     categorical_vars_length = state_dict['categorical_vars_length']
     print(user_dims)
 
-    learning_rate = 0.01
-    reg_lambda = 0.001
-    batch_size = 512
-    early_stop_trial = 10
-    num_epochs = 100
-    embed_dim = 16
-
-    device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
-    print(device)
-    fm.eval()
-
 ######
     # click item dict
     with open('../../data/user_click_items.pickle', 'rb') as f:
@@ -113,13 +119,60 @@ if __name__ == "__main__":
         result = encoder.inverse_transform(input)
         return result
 
-    # category TOP 20 per user
+    # category TOP 30 per user
     #  user | category | href
     columns = ['user_id','href','large1','large2','middle1','middle2','click_count2idx','click_count7idx','click_count30idx','click_count2','click_count7','click_count30','score']
     #columns = ['user_id','href','large1','large2','middle1','middle2','salePriceidx','clickcountidx','timediffidx','salePrice','click_count','time_diff','score']
-    top50df = pd.DataFrame(columns = columns)
+    
+    
+    result_df = pd.DataFrame(columns = columns)
+    cold_df = pd.DataFrame(columns = columns)
+
+    is_cold_df = False
     count = 0
     for user_id in df_user['user_id'].values:
+        
+        
+        user_decodes = decoding(user_encodes, [user_id])[0]
+        if user_decodes in cold_users :
+            print("cold_user  ", user_decodes)
+            if is_cold_df == True :
+                cold_df['user_id'] = user_decodes
+                result_df = pd.concat([result_df,cold_df])
+                count+=1
+                print(count)
+                continue
+            
+            elif is_cold_df == False :
+                print('no cold_df')
+                df_href['user_id'] = user_id
+                df_pred = df_href[['user_id','href','large1','large2','middle1','middle2','click_count2idx','click_count7idx','click_count30idx','click_count2','click_count7','click_count30']]
+                pred_data = df_pred.values
+                pred_data_loader = DataLoader(range(pred_data.shape[0]), batch_size= 1024, shuffle=False)
+                pred_array = np.zeros(pred_data.shape[0])
+                for b, batch_idxes in enumerate(pred_data_loader):
+                    batch_data = torch.tensor(pred_data[batch_idxes], dtype=torch.float, device=device)
+
+                    with torch.no_grad():
+                        pred_array[batch_idxes] = fm.forward(batch_data).cpu().numpy()
+                df_pred['score'] = pred_array
+                ## cold user는 제거안함 . 
+
+                df_pred['href'] -= user_dims
+                item_decodes = decoding(item_encodes, df_pred['href'].values)
+                df_pred['user_id'] = user_decodes
+                df_pred['href'] = item_decodes
+
+                df_pred = df_pred.loc[df_pred['href'].isin(click_items) == False]
+                cold_df = df_pred.groupby('middle1').head(20).reset_index(drop=True)
+                is_cold_df = True
+                #user_decodes = decoding(user_encodes , df_pred['user_id'].values)
+                #df_pred = df_pred.sort_values(by='middle1')
+                result_df = pd.concat([result_df, cold_df ])
+                print(count)
+                count +=1
+                continue
+
 
         # add userid
         df_href['user_id'] = user_id
@@ -128,7 +181,7 @@ if __name__ == "__main__":
         # df to torch
         pred_data = df_pred.values
         # batch_size = 2048?
-        pred_data_loader = DataLoader(range(pred_data.shape[0]), batch_size= 2048, shuffle=False)
+        pred_data_loader = DataLoader(range(pred_data.shape[0]), batch_size= 1024, shuffle=False)
         pred_array = np.zeros(pred_data.shape[0])
 
         for b, batch_idxes in enumerate(pred_data_loader):
@@ -143,9 +196,9 @@ if __name__ == "__main__":
         df_pred['score'] = pred_array
 
         # filter by seen data
-        user_decodes = decoding(user_encodes, [user_id])[0]
+        
         click_items = user_click_items[user_decodes]
-        click_items = set(click_items)
+        #click_items = set(click_items)
 
         df_pred['href'] -= user_dims
         item_decodes = decoding(item_encodes, df_pred['href'].values)
@@ -153,24 +206,16 @@ if __name__ == "__main__":
         df_pred['href'] = item_decodes
 
         df_pred = df_pred.loc[df_pred['href'].isin(click_items) == False]
-
-        # 1      top 30
-        #df_pred = df_pred.sort_values(by='score' , ascending=False)
-        #df_pred = df_pred[:30]
-
-        #
-
-        # 2       top 10 each category
-        df_pred = df_pred.groupby('middle1').head(20).reset_index(drop=True)
+        df_pred = df_pred.groupby('middle1').head(30).reset_index(drop=True)
 
         #user_decodes = decoding(user_encodes , df_pred['user_id'].values)
         #df_pred = df_pred.sort_values(by='middle1')
-        top50df = pd.concat([top50df, df_pred ])
-
+        result_df = pd.concat([result_df, df_pred ])
         print(count)
         count +=1
+        
 
-    top50df.to_csv('top20_each.csv',index=False)
-    import datetime
-    current_time = datetime.datetime.now()
-    print(current_time)
+    print( start_time  - datetime.datetime.now() , "Predict end ")
+    result_df.to_csv('top20_each_category.csv',index=False)
+    print( start_time  - datetime.datetime.now() , "File write end ")
+  

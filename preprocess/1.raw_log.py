@@ -29,7 +29,7 @@ if __name__ == '__main__':
     start_time = datetime.now() - timedelta(30)
     # Query for documents where the `date` field is greater than "yesterday"
     responses = collection.find({"currentTime": {"$gt": start_time}})
-
+    
     #responses = logCollection.find()
 
     count = 0
@@ -46,8 +46,11 @@ if __name__ == '__main__':
         # 모르는 api임.
         if func not in ['get_item', "get_items", "get_related_items", "get_newest_items"]:
             continue
-
-        url = response['user_info']['url']
+        try:
+            url = response['user_info']['url']
+        except:
+            print(response)
+            continue
 
         # 클릭 로그
         if func == 'get_item':
