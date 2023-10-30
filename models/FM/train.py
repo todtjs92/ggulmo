@@ -133,14 +133,10 @@ if __name__ == "__main__":
     print("the length is ", len(df_user['user_id'].values))
     for user_id in df_user['user_id'].values:
         
-        
         user_decodes = decoding(user_encodes, [user_id])[0]
         if user_decodes in cold_users :
             print("cold_user  ", user_decodes)
             if is_cold_df == True :
-                cold_df['user_id'] = user_decodes
-                result_df = pd.concat([result_df,cold_df])
-
                 count+=1
                 print(count)
                 continue
