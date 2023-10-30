@@ -94,7 +94,7 @@ if __name__ == "__main__":
     # user
     df_user = df_feature[['user_id']]
     df_user = df_user.drop_duplicates('user_id')
-
+    
     # model import
 
     with open('../../data/state_dict.pickle', 'rb') as f:
@@ -130,6 +130,7 @@ if __name__ == "__main__":
 
     is_cold_df = False
     count = 0
+    print("the length is ", len(df_user['user_id'].values))
     for user_id in df_user['user_id'].values:
         
         
@@ -139,6 +140,7 @@ if __name__ == "__main__":
             if is_cold_df == True :
                 cold_df['user_id'] = user_decodes
                 result_df = pd.concat([result_df,cold_df])
+
                 count+=1
                 print(count)
                 continue
@@ -164,12 +166,13 @@ if __name__ == "__main__":
                 df_pred['href'] = item_decodes
 
                 df_pred = df_pred.loc[df_pred['href'].isin(click_items) == False]
-                cold_df = df_pred.groupby('middle1').head(20).reset_index(drop=True)
+                cold_df = df_pred.groupby('middle1').head(30).reset_index(drop=True)
                 is_cold_df = True
                 #user_decodes = decoding(user_encodes , df_pred['user_id'].values)
                 #df_pred = df_pred.sort_values(by='middle1')
                 result_df = pd.concat([result_df, cold_df ])
                 print(count)
+
                 count +=1
                 continue
 
@@ -213,9 +216,9 @@ if __name__ == "__main__":
         result_df = pd.concat([result_df, df_pred ])
         print(count)
         count +=1
-        
+
 
     print( start_time  - datetime.datetime.now() , "Predict end ")
-    result_df.to_csv('top20_each_category.csv',index=False)
+    result_df.to_csv('top30_each_category.csv',index=False)
     print( start_time  - datetime.datetime.now() , "File write end ")
   
