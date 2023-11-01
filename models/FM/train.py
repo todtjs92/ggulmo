@@ -161,7 +161,8 @@ if __name__ == "__main__":
                 df_pred['user_id'] = user_decodes
                 df_pred['href'] = item_decodes
 
-                df_pred = df_pred.loc[df_pred['href'].isin(click_items) == False]
+                # cold users don't need click_items
+                #df_pred = df_pred.loc[df_pred['href'].isin(click_items) == False]
                 cold_df = df_pred.groupby('middle1').head(30).reset_index(drop=True)
                 is_cold_df = True
                 #user_decodes = decoding(user_encodes , df_pred['user_id'].values)
