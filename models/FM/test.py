@@ -1,16 +1,21 @@
-import torch
-import pickle
+import pymongo
+import configparser
+from datetime import datetime , timedelta
+import pandas as pd
+# MongoDB 접속 정보 설정
 
-model = torch.load('/home/jungeui/Documents/workspace/ggulmo/models/FM/FM_best_model.pt')
+if __name__ == '__main__':
+    config = configparser.ConfigParser()
+    config.read('config.ini')
 
-
-print(model['linear.fc.weight'])
-print(len(model['linear.fc.weight']))
-
-# 
-model['linear.fc.weight'][-3] = model['linear.fc.weight'][-1]
-print(model['linear.fc.weight'])
-
-with open('../../data/state_dict.pickle','rb') as f:
-    state_dict = pickle.load(f)
-print(state_dict)
+    username = config['mongoDB']['username']
+    password = config['mongoDB']['password']
+    host = config['mongoDB']['host']
+    port = config['mongoDB']['port']
+    logDB = config['mongoDB']['logDB']
+    logCollection = config['mongoDB']['logCollection']
+    connection_string = f"mongodb://{host}:{port}/"
+    client = pymongo.MongoClient(connection_string)
+    db_list = client.list_database_names()
+    for db_name in db_list:
+        print(db_name)
