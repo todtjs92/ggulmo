@@ -8,13 +8,11 @@ if __name__ == '__main__':
     config = configparser.ConfigParser()
     config.read('config.ini')
 
-    username = config['mongoDB']['username']
-    password = config['mongoDB']['password']
     host = config['mongoDB']['host']
     port = config['mongoDB']['port']
-    logDB = config['mongoDB']['logDB']
-    logCollection = config['mongoDB']['logCollection']
+
     connection_string = f"mongodb://{host}:{port}/"
+    print(connection_string)
     client = pymongo.MongoClient(connection_string)
     db_list = client.list_database_names()
     for db_name in db_list:
