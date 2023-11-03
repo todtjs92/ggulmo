@@ -10,10 +10,28 @@ import torch
 from torch.utils.data import DataLoader
 import sys
 import datetime
-    
+import configparser
 
 
 if __name__ == "__main__":
+
+    # 
+    config = configparser.ConfigParser()
+    config.read('config.ini')
+
+    host = config['mongoDB']['host']
+    port = config['mongoDB']['port']
+    recDB = config['mongoDB']['recDB']
+    fmCollection = config['mongoDB']['fmCollection']
+
+    # mongo annotation
+    # connection_string = f"mongodb://{host}:{port}/"
+    # print(connection_string)
+    # client = pymongo.MongoClient(connection_string)
+    # database = client[recDB]
+    # collection = database[fmCollection]
+
+
     start_time = datetime.datetime.now()
     # seed
     random_seed = 1
@@ -69,10 +87,9 @@ if __name__ == "__main__":
 
     # 30 days = 2days 
     # make weak 30days weight . 
-    print(fm.linear.fc.weight.data[-3:])
 
-    weight_2day = fm.linear.fc.weight.data[-3]
-    weight_30day = fm.linear.fc.weight.data[-1]
+    weight_2day = torch.tensor(fm.linear.fc.weight.data[-3])
+    weight_30day = torch.tensor(fm.linear.fc.weight.data[-1])
 
     fm.linear.fc.weight.data[-3] = weight_30day
     fm.linear.fc.weight.data[-1] = weight_2day
@@ -82,8 +99,10 @@ if __name__ == "__main__":
 
     fm.eval()
 
-    df_feature = pd.read_pickle('../../data/df_feature_final.pickle')
-    df_feature = df_feature.loc[df_feature['label'] == 1]
+    df_feature = pd.read_pickle('../../data/df_category_onsale_label1.pickle')
+    
+
+    ## add feature table join with selling table.
 
     # href columns
     # item
@@ -101,6 +120,7 @@ if __name__ == "__main__":
         state_dict = pickle.load(f)
     field_dims = state_dict['max_dimension']
     user_dims = state_dict['user_dimension']
+    item_dims = state_dict['item_dimension']
     categorical_vars_length = state_dict['categorical_vars_length']
     print(user_dims)
 
@@ -119,6 +139,15 @@ if __name__ == "__main__":
         result = encoder.inverse_transform(input)
         return result
 
+    with open('../../data/category2_dict.pickle','rb') as f:
+        category2_dict = pickle.load(f)
+       
+    category2_dict_inverse = {v: k for k, v in category2_dict.items()}
+
+    def categoy_decode(x):
+        category = category2_dict_inverse[x]
+        return category
+    
     # category TOP 30 per user
     #  user | category | href
     columns = ['user_id','href','large1','large2','middle1','middle2','click_count2idx','click_count7idx','click_count30idx','click_count2','click_count7','click_count30','score']
@@ -144,6 +173,9 @@ if __name__ == "__main__":
             elif is_cold_df == False :
                 print('no cold_df')
                 df_href['user_id'] = user_id
+
+                
+
                 df_pred = df_href[['user_id','href','large1','large2','middle1','middle2','click_count2idx','click_count7idx','click_count30idx','click_count2','click_count7','click_count30']]
                 pred_data = df_pred.values
                 pred_data_loader = DataLoader(range(pred_data.shape[0]), batch_size= 1024, shuffle=False)
@@ -160,6 +192,13 @@ if __name__ == "__main__":
                 item_decodes = decoding(item_encodes, df_pred['href'].values)
                 df_pred['user_id'] = user_decodes
                 df_pred['href'] = item_decodes
+
+                df_pred['middle1'] -= (user_dims + item_dims)
+                # 2 is having no category 
+                df_pred = df_pred.loc[df_pred['middle1']!= 2 ]
+                df_pred['middle1'] = df_pred['middle1'].map(category2_dict_inverse)
+
+
 
                 # cold users don't need click_items
                 #df_pred = df_pred.loc[df_pred['href'].isin(click_items) == False]
@@ -191,7 +230,8 @@ if __name__ == "__main__":
                 pred_array[batch_idxes] = fm.forward(batch_data).cpu().numpy()
 
 
-        # top 50
+        
+        # top 30
 
         df_pred['score'] = pred_array
 
@@ -205,6 +245,11 @@ if __name__ == "__main__":
         df_pred['user_id'] = user_decodes
         df_pred['href'] = item_decodes
 
+        df_pred['middle1'] -= (user_dims + item_dims)
+        # 2 is having no category 
+        df_pred = df_pred.loc[df_pred['middle1']!= 2 ]
+        df_pred['middle1'] = df_pred['middle1'].map(category2_dict_inverse)
+
         df_pred = df_pred.loc[df_pred['href'].isin(click_items) == False]
         df_pred = df_pred.groupby('middle1').head(30).reset_index(drop=True)
 
@@ -213,9 +258,12 @@ if __name__ == "__main__":
         result_df = pd.concat([result_df, df_pred ])
         print(count)
         count +=1
-
+        if count >= 10:
+            break
+    
+    print(result_df)
 
     print( start_time  - datetime.datetime.now() , "Predict end ")
-    result_df.to_csv('top30_each_category.csv',index=False)
+    result_df.to_csv('top30_each_category_test.csv',index=False)
     print( start_time  - datetime.datetime.now() , "File write end ")
   

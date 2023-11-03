@@ -40,6 +40,7 @@ if __name__ == '__main__':
     result_get_related_items = []
     result_get_newest_items = []
 
+    error_list = []
     for response in responses:
         func = response['func']
 

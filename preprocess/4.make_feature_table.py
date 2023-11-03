@@ -10,7 +10,7 @@ if __name__ == "__main__":
     '''
 
     df_meta= pd.read_pickle('../data/df_meta_feature.pickle')
-    df_meta = df_meta[['href','category_encoding','click_count2','click_count7','click_count30']]
+    df_meta = df_meta[['href','category_encoding','saleStatus','click_count2','click_count7','click_count30']]
 
     df_positive = pd.read_pickle('../data/df_positive.pickle')
     df_negative = pd.read_pickle('../data/df_negative_filter.pickle')
@@ -96,10 +96,17 @@ if __name__ == "__main__":
     df_category_['click_count2idx'] = category_max + 1
     df_category_['click_count7idx'] = category_max + 2
     df_category_['click_count30idx'] = category_max + 3
-    df_category_.columns = ['user_id','href','label','large1','large2','middle1','middle2','click_count2','click_count7','click_count30','click_count2idx','click_count7idx','click_count30idx']
-    df_category_ = df_category_[['user_id','href','large1','large2','middle1','middle2','click_count2idx','click_count7idx','click_count30idx','click_count2','click_count7','click_count30','label']]
+    df_category_.columns = ['user_id','href','saleStatus','label','large1','large2','middle1','middle2','click_count2','click_count7','click_count30','click_count2idx','click_count7idx','click_count30idx']
+    df_category_ = df_category_[['user_id','href','saleStatus','large1','large2','middle1','middle2','click_count2idx','click_count7idx','click_count30idx','click_count2','click_count7','click_count30','label']]
+    
+    df_category_onsale = df_category_.loc[df_category_['saleStatus']!='판매완료']
+    df_category_onsale_label1 = df_category_onsale.loc[df_category_onsale['label']==1]
+    del df_category_['saleStatus']
+    del df_category_onsale_label1['saleStatus']
+    del df_category_onsale_label1['label']
+    
     df_category_.to_pickle('../data/df_feature_final.pickle')
-
+    df_category_onsale_label1.to_pickle('../data/df_category_onsale_label1.pickle')
 
     # continuous var, label 제외한 부분들이 categorical 변수
     categorical_vars = df_category_.columns[:-(2*continuous_vars_length + 1 ) ]

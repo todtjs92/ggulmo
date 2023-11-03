@@ -34,6 +34,8 @@ if __name__ == "__main__":
     user_impressed_items = defaultdict(set)
     for uuid , href_list in zip(df_negative['uuid'] , df_negative['item_id_ret_list']):
         set_ = set(href_list)
+        if 'none' in set_:
+            set_.remove('none')
         user_impressed_items[uuid].update(set_)
 
     # 본 id 제외
@@ -46,18 +48,37 @@ if __name__ == "__main__":
     df_impress['impressed_items'] = df_impress['impressed_items'].apply(list)
 
     df_impress['length'] = df_impress['impressed_items'].map(lambda x: len(x))
-    # 0이상인 impression 만 가져옴 , 잘못된 데이터 필터링 .
-    df_impress = df_impress.loc[df_impress['length']> 0 ]
 
+
+
+    # 0이상인 impression 만 가져옴 , 잘못된 데이터 필터링 .
+    #
+    df_impress = df_impress.loc[df_impress['length']> 0]
+
+    # make clickcount for resize the negative set . 
+    df_positive_group = df_positive.groupby(by='uuid').count()
+    df_positive_group= df_positive_group[['func']]
+    df_positive_group= df_positive_group.reset_index()
+    click_count = dict()
+    for uuid, count in zip(df_positive_group['uuid'] , df_positive_group['func']):
+        click_count[uuid] = count
 
     # get random impression data
-    def select_random(x):
+    def select_random(impressed_items, click_counts_user ):
         try:
-            selected_items = random.sample(x, 20)
+            selected_items = random.sample( impressed_items ,click_counts_user )
         except:
-            selected_items = x
+            selected_items = impressed_items
         return selected_items
-    df_impress['href'] = df_impress['impressed_items'].map(select_random)
+    # iteration for random sampling
+    random_items = []
+    for uuid, impressed_items in zip(df_impress['uuid'] , df_impress['impressed_items']): 
+        click_counts_user = click_count[uuid]
+        samples = select_random(impressed_items,click_counts_user)
+        random_items.append(samples)
+        
+
+    df_impress['href'] = random_items
     df_impress_ = df_impress.explode(column=['href'],ignore_index=True)
     df_impress = df_impress_[['uuid', 'href']]
 
