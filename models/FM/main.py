@@ -26,11 +26,11 @@ if __name__ == "__main__":
     fmCollection = config['mongoDB']['fmCollection']
 
     # mongo annotation
-    # connection_string = f"mongodb://{host}:{port}/"
-    # print(connection_string)
-    # client = MongoClient(connection_string)
-    # database = client[recDB]
-    # collection = database[fmCollection]
+    connection_string = f"mongodb://{host}:{port}/"
+    print(connection_string)
+    client = MongoClient(connection_string)
+    database = client[recDB]
+    collection = database[fmCollection]
 
 
     start_time = datetime.datetime.now()
