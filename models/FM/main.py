@@ -11,6 +11,7 @@ from torch.utils.data import DataLoader
 import sys
 import datetime
 import configparser
+from pymongo import Mongoclient , UpdateOne
 
 
 if __name__ == "__main__":
@@ -27,7 +28,7 @@ if __name__ == "__main__":
     # mongo annotation
     # connection_string = f"mongodb://{host}:{port}/"
     # print(connection_string)
-    # client = pymongo.MongoClient(connection_string)
+    # client = MongoClient(connection_string)
     # database = client[recDB]
     # collection = database[fmCollection]
 
@@ -89,7 +90,9 @@ if __name__ == "__main__":
     # make weak 30days weight . 
 
     weight_2day = torch.tensor(fm.linear.fc.weight.data[-3])
+    weight_2day = torch.abs(weight_2day)
     weight_30day = torch.tensor(fm.linear.fc.weight.data[-1])
+    weight_30day = torch.abs(weight_30day)
 
     fm.linear.fc.weight.data[-3] = weight_30day
     fm.linear.fc.weight.data[-1] = weight_2day
@@ -251,19 +254,41 @@ if __name__ == "__main__":
         df_pred['middle1'] = df_pred['middle1'].map(category2_dict_inverse)
 
         df_pred = df_pred.loc[df_pred['href'].isin(click_items) == False]
+        df_pred = df_pred.sort_values(by='score',ascending=False)
         df_pred = df_pred.groupby('middle1').head(30).reset_index(drop=True)
 
+        df_pred_select = df_pred[['middle1','href']]
+
+        insert_data = []
+        for category, group_df in df_pred_select.groupby('middle1'):
+            transformed_data = {}
+            transformed_data[category] = {i: v for i, v in enumerate(group_df['href'], 1)}
+            insert_data.append(Update_one({'_id':user_decodes},{'$set':transformed_data},upsert=True))
+
+        collection.bulk_write(insert_data)
+        
         #user_decodes = decoding(user_encodes , df_pred['user_id'].values)
         #df_pred = df_pred.sort_values(by='middle1')
-        result_df = pd.concat([result_df, df_pred ])
+        #result_df = pd.concat([result_df, df_pred ])
         print(count)
         count +=1
-        if count >= 10:
-            break
-    
-    print(result_df)
 
-    print( start_time  - datetime.datetime.now() , "Predict end ")
-    result_df.to_csv('top30_each_category_test.csv',index=False)
+    # insert cold user data
+    cold_df = cold_df.sort_values(by='score',ascending=False)
+    cold_df = cold_df.groupby('middle1').head(30).reset_index(drop=True)
+
+    cold_df_select = cold_df[['middle1','href']]
+
+    insert_data = []
+    for category, group_df in cold_df_select.groupby('middle1'):
+        transformed_data = {}
+        transformed_data[category] = {i: v for i, v in enumerate(group_df['href'], 1)}
+        insert_data.append(Update_one({'_id':'colduser'},{'$set':transformed_data},upsert=True))
+
+    collection.bulk_write(insert_data)
+
+
+    #print( start_time  - datetime.datetime.now() , "Predict end ")
+    #result_df.to_csv('top30_each_category_test.csv',index=False)
     print( start_time  - datetime.datetime.now() , "File write end ")
   
