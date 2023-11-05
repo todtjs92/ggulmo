@@ -4,6 +4,8 @@ set -euo pipefail
 
 # set virtual env 
 source ~/venv_rec/bin/activate
+echo start 
+
 #preprocess
 python ./preprocess/1.raw_log.py
 python ./preprocess/1.raw_meta.py
