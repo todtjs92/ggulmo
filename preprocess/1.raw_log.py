@@ -40,7 +40,7 @@ if __name__ == '__main__':
     result_get_related_items = []
     result_get_newest_items = []
 
-    error_list = []
+    error_count = 0
     for response in responses:
         func = response['func']
 
@@ -50,7 +50,7 @@ if __name__ == '__main__':
         try:
             url = response['user_info']['url']
         except:
-            print(response)
+            error_count +=1
             continue
 
         # 클릭 로그
@@ -79,6 +79,7 @@ if __name__ == '__main__':
         if count % 10000 == 0:
             print(count)
 
+    print("error_count is " , error_count)
     client.close()
 
     # pandas 테이블 형태를 pickle로 저장할거임 .
