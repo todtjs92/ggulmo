@@ -10,6 +10,7 @@ echo start
 
 #preprocess
 ${venv_python} ${project_path}/preprocess/1.raw_log.py
+echo end1
 ${venv_python} ${project_path}/preprocess/1.raw_meta.py
 ${venv_python} ${project_path}/preprocess/2.add_view_to_meta.py
 ${venv_python} ${project_path}/preprocess/2.user_filter.py
