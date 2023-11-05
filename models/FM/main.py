@@ -11,7 +11,7 @@ from torch.utils.data import DataLoader
 import sys
 import datetime
 import configparser
-from pymongo import Mongoclient , UpdateOne
+from pymongo import MongoClient , UpdateOne
 
 
 if __name__ == "__main__":
