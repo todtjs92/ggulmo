@@ -9,7 +9,7 @@ import os
 # MongoDB 접속 정보 설정
 
 if __name__ == '__main__':
-    #config = configparser.ConfigParser()
+    config = configparser.ConfigParser()
 
 
     current_file_path = os.path.abspath(__file__)

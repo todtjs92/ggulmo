@@ -24,8 +24,8 @@ if __name__ == "__main__":
 
     print(current_file_path)
     print(data_dir_path)
-    sys.exit(0)
-    # 
+   
+
     config = configparser.ConfigParser()
     config.read(current_dir_path + '/config.ini')
 
