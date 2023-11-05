@@ -2,7 +2,7 @@ import pandas as pd
 from sklearn.preprocessing import MinMaxScaler
 from sklearn.preprocessing import LabelEncoder
 import pickle
-
+import os
 if __name__ == "__main__":
 
     current_file_path = os.path.abspath(__file__)
