@@ -8,7 +8,7 @@ import pandas as pd
 if __name__ == '__main__':
     config = configparser.ConfigParser()
     config.read('config.ini')
-
+    print(config.items)
     username = config['mongoDB']['username']
     password = config['mongoDB']['password']
     host = config['mongoDB']['host']
