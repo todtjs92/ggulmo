@@ -23,7 +23,7 @@ if __name__ == '__main__':
 
 
 
-    config.read( preprocess_path + "/config.ini")
+    config.read( preprocess_dir_path + "/config.ini")
     username = config['mongoDB']['username']
     password = config['mongoDB']['password']
     host = config['mongoDB']['host']
