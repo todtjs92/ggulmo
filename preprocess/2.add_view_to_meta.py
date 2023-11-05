@@ -3,14 +3,23 @@ from datetime import datetime , timedelta
 
 if __name__ == '__main__':
 
+    current_file_path = os.path.abspath(__file__)
+
+    preprocess_dir_path = os.path.dirname(current_file_path)
+    main_dir_path = os.path.dirname(os.path.dirname(current_file_path))
+    data_dir_path = os.path.join(main_dir_path, 'data')
+
+    print(current_file_path)
+    print(data_dir_path)
+
     '''
     1달치 로그를 바탕으로 조회수를 구하는 부분 . 
     '''
 
-    df_meta = pd.read_pickle('../data/df_meta.pickle')
+    df_meta = pd.read_pickle(data_dir_path + '/df_meta.pickle')
 
 
-    df_click = pd.read_pickle('../data/df_get_item.pickle')
+    df_click = pd.read_pickle(data_dir_path + '/df_get_item.pickle')
 
     # 필요한 column만 가져옴 .
     df_click = df_click[['uuid' , 'current_time' , 'href' ]]
@@ -61,5 +70,5 @@ if __name__ == '__main__':
 
     df_meta_click = df_meta_click.fillna(value=0.0)
 
-    df_meta_click.to_pickle('../data/df_metaview.pickle')
+    df_meta_click.to_pickle(data_dir_path + '/df_metaview.pickle')
 

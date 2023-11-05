@@ -5,13 +5,22 @@ import pickle
 
 if __name__ == "__main__":
 
+    current_file_path = os.path.abspath(__file__)
+
+    preprocess_dir_path = os.path.dirname(current_file_path)
+    main_dir_path = os.path.dirname(os.path.dirname(current_file_path))
+    data_dir_path = os.path.join(main_dir_path, 'data')
+
+    print(current_file_path)
+    print(data_dir_path)
+
     '''
     negtative data set에서 학습에 들어갈 데이터 선별 하는 부분 . 
     
     '''
 
-    df_negative = pd.read_pickle('../data/df_negative.pickle')
-    df_positive = pd.read_pickle('../data/df_positive.pickle')
+    df_negative = pd.read_pickle(data_dir_path + '/df_negative.pickle')
+    df_positive = pd.read_pickle(data_dir_path + '/df_positive.pickle')
 
     user_click_items = defaultdict(set)
     for uuid , href in zip(df_positive['uuid'] , df_positive['href']):
@@ -23,12 +32,12 @@ if __name__ == "__main__":
         item_length = len(href_set)
         if item_length <= 3 :
             cold_users.add(user_id)
-    with open('../data/cold_users.pickle','wb') as f:
+    with open(data_dir_path + '/cold_users.pickle','wb') as f:
         pickle.dump(cold_users, f )
 
     # 클릭 2회이상인 유저여도 같은 상품 2번이면 나올수 있음 .
 
-    with open('../data/user_click_items.pickle','wb') as f:
+    with open(data_dir_path + '/user_click_items.pickle','wb') as f:
         pickle.dump(user_click_items, f)
 
     user_impressed_items = defaultdict(set)
@@ -82,4 +91,4 @@ if __name__ == "__main__":
     df_impress_ = df_impress.explode(column=['href'],ignore_index=True)
     df_impress = df_impress_[['uuid', 'href']]
 
-    df_impress.to_pickle('../data/df_negative_filter.pickle')
+    df_impress.to_pickle(data_dir_path + '/df_negative_filter.pickle')

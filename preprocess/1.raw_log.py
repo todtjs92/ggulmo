@@ -4,18 +4,32 @@ from datetime import datetime , timedelta
 from util import get_item_parser , get_items_parser , get_newest_items_parser , get_related_items_parser
 import pandas as pd
 import sys
+import os
+
 # MongoDB 접속 정보 설정
 
 if __name__ == '__main__':
-    config = configparser.ConfigParser()
-    config.read('/home/todtjs92/ggulmo_rec/ggulmo/preprocess/config.ini')
+    #config = configparser.ConfigParser()
+
+
+    current_file_path = os.path.abspath(__file__)
+
+    preprocess_dir_path = os.path.dirname(current_file_path)
+    main_dir_path = os.path.dirname(os.path.dirname(current_file_path))
+    data_dir_path = os.path.join(main_dir_path, 'data')
+
+    print(current_file_path)
+    print(data_dir_path)
+
+
+
+    config.read( preprocess_path + "/config.ini")
     username = config['mongoDB']['username']
     password = config['mongoDB']['password']
     host = config['mongoDB']['host']
     port = config['mongoDB']['port']
     logDB = config['mongoDB']['logDB']
     logCollection = config['mongoDB']['logCollection']
-
 
     mongo_uri = f"mongodb://{username}:{password}@{host}:{port}"
     client = pymongo.MongoClient(mongo_uri)
@@ -86,19 +100,19 @@ if __name__ == '__main__':
 
     df_result_get_item = pd.DataFrame(result_get_item)
     df_result_get_item.columns = ["func", "uuid", "url", "query", "item_id", "href", "item_id_ret_list", "cookie", "current_time", "upload_time"]
-    df_result_get_item.to_pickle('../data/df_get_item.pickle')
+    df_result_get_item.to_pickle(data_dir_path + '/df_get_item.pickle')
 
 
     df_result_get_items =  pd.DataFrame(result_get_items)
     df_result_get_items.columns = ["func", "uuid", "url", "query", "item_id", "item_id_ret_list", "current_time", "cookie"]
-    df_result_get_items.to_pickle('../data/df_get_items.pickle')
+    df_result_get_items.to_pickle(data_dir_path + '/df_get_items.pickle')
 
 
     df_result_get_related_items =  pd.DataFrame(result_get_related_items)
     df_result_get_related_items.columns = ["func", "uuid", "url", "query", "item_id", "item_id_ret_list", "current_time", "cookie"]
-    df_result_get_related_items.to_pickle('../data/df_get_related_items.pickle')
+    df_result_get_related_items.to_pickle( data_dir_path + '/df_get_related_items.pickle')
 
 
     df_result_get_newest_items =  pd.DataFrame(result_get_newest_items)
     df_result_get_newest_items.columns = ["func", "uuid", "url", "query", "item_id", "item_id_ret_list", "current_time", "cookie"]
-    df_result_get_newest_items.to_pickle('../data/df_get_newest_items.pickle')
+    df_result_get_newest_items.to_pickle( data_dir_path + '/df_get_newest_items.pickle')

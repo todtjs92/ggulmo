@@ -12,13 +12,22 @@ import sys
 import datetime
 import configparser
 from pymongo import MongoClient , UpdateOne
-
+import os
 
 if __name__ == "__main__":
+    
+    current_file_path = os.path.abspath(__file__)
+    current_dir_path = os.path.dirname(current_file_path)
 
+    main_dir_path = os.path.dirname(os.path.dirname(os.path.dirname(current_file_path)))
+    data_dir_path = os.path.join(main_dir_path, 'data')
+
+    print(current_file_path)
+    print(data_dir_path)
+    sys.exit(0)
     # 
     config = configparser.ConfigParser()
-    config.read('/home/todtjs92/ggulmo_rec/ggulmo/models/FM/config.ini')
+    config.read(current_dir_path + '/config.ini')
 
     host = config['mongoDB']['host']
     port = config['mongoDB']['port']
@@ -43,14 +52,14 @@ if __name__ == "__main__":
     random.seed(random_seed)
 
     # read feature table from pickle ->
-    data_path = '../../data/df_feature_final.pickle'
+    data_path = data_dir_path + '/df_feature_final.pickle'
     df = load_pickle(data_path)
 
     # return dataframe
     df_train , df_valid , df_test  = train_valid_test_split(df )
 
     # cold users 
-    with open('../../data/cold_users.pickle','rb') as f:
+    with open(data_dir_path + '/cold_users.pickle','rb') as f:
         cold_users = pickle.load(f)
  
     # return values , numpy array
@@ -62,7 +71,7 @@ if __name__ == "__main__":
 
     # 마지막 feature의 값 + 1 이 field_dims가 됨 .
     # 이거 바꿔야한다 .258610 + 1
-    with open('../../data/state_dict.pickle','rb') as f:
+    with open(data_dir_path + '/state_dict.pickle','rb') as f:
         state_dict = pickle.load(f)
 
     field_dims = state_dict['max_dimension']
@@ -74,7 +83,7 @@ if __name__ == "__main__":
     # hyperparm 후에 input으로 받도록 개선
     learning_rate = 0.01
     reg_lambda = 0.001
-    batch_size = 512
+    batch_size = 1024
     early_stop_trial = 10
     num_epochs = 100
     embed_dim = 16
@@ -102,7 +111,7 @@ if __name__ == "__main__":
 
     fm.eval()
 
-    df_feature = pd.read_pickle('../../data/df_category_onsale_label1.pickle')
+    df_feature = pd.read_pickle(data_dir_path + '/df_category_onsale_label1.pickle')
     
 
     ## add feature table join with selling table.
@@ -112,14 +121,13 @@ if __name__ == "__main__":
     df_href = df_feature[['user_id','href','large1','large2','middle1','middle2','click_count2idx','click_count7idx','click_count30idx','click_count2','click_count7','click_count30']]
     df_href = df_href.drop_duplicates('href')
 
-
     # user
     df_user = df_feature[['user_id']]
     df_user = df_user.drop_duplicates('user_id')
     
     # model import
 
-    with open('../../data/state_dict.pickle', 'rb') as f:
+    with open(data_dir_path + '/state_dict.pickle', 'rb') as f:
         state_dict = pickle.load(f)
     field_dims = state_dict['max_dimension']
     user_dims = state_dict['user_dimension']
@@ -129,20 +137,20 @@ if __name__ == "__main__":
 
 ######
     # click item dict
-    with open('../../data/user_click_items.pickle', 'rb') as f:
+    with open(data_dir_path + '/user_click_items.pickle', 'rb') as f:
         user_click_items = pickle.load(f)
 
     # user_encodes , item encodes
-    with open('../../data/user_encodes.pickle', 'rb') as f:
+    with open(data_dir_path + '/user_encodes.pickle', 'rb') as f:
         user_encodes = pickle.load(f)
-    with open('../../data/item_encodes.pickle', 'rb') as f:
+    with open(data_dir_path + '/item_encodes.pickle', 'rb') as f:
         item_encodes = pickle.load(f)
 
     def decoding(encoder, input):
         result = encoder.inverse_transform(input)
         return result
 
-    with open('../../data/category2_dict.pickle','rb') as f:
+    with open(data_dir_path + '/category2_dict.pickle','rb') as f:
         category2_dict = pickle.load(f)
        
     category2_dict_inverse = {v: k for k, v in category2_dict.items()}
@@ -291,4 +299,4 @@ if __name__ == "__main__":
     #print( start_time  - datetime.datetime.now() , "Predict end ")
     #result_df.to_csv('top30_each_category_test.csv',index=False)
     print( start_time  - datetime.datetime.now() , "File write end ")
-  
+     

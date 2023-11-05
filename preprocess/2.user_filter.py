@@ -2,6 +2,15 @@ import pandas as pd
 
 if __name__ == '__main__':
 
+    current_file_path = os.path.abspath(__file__)
+
+    preprocess_dir_path = os.path.dirname(current_file_path)
+    main_dir_path = os.path.dirname(os.path.dirname(current_file_path))
+    data_dir_path = os.path.join(main_dir_path, 'data')
+
+    print(current_file_path)
+    print(data_dir_path)
+
     '''
     click 데이터를 바탕으로 postivie data set , 
     impression 데이터를 바탕으로 negative data set 

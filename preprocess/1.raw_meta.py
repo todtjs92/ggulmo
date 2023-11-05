@@ -5,6 +5,16 @@ from util import meta_parser
 import pandas as pd
 
 if __name__ == '__main__':
+
+    current_file_path = os.path.abspath(__file__)
+
+    preprocess_dir_path = os.path.dirname(current_file_path)
+    main_dir_path = os.path.dirname(os.path.dirname(current_file_path))
+    data_dir_path = os.path.join(main_dir_path, 'data')
+
+    print(current_file_path)
+    print(data_dir_path)
+
     config = configparser.ConfigParser()
     config.read('config.ini')
 
@@ -42,7 +52,7 @@ if __name__ == '__main__':
 
     df_result_meta = pd.DataFrame(result_meta)
     df_result_meta.columns = ["_id" , "title" , "category1_nm" , "category2_nm" , "community_nm" , "href"  , "regions" , "salePrice" ,"saleStatus" ,  "tdview" , "uploadTime"]
-    df_result_meta.to_pickle('../data/df_meta.pickle')
+    df_result_meta.to_pickle(data_dir_path + '/df_meta.pickle')
 
 
 

@@ -5,6 +5,15 @@ from datetime import datetime, timezone
 
 if __name__ == '__main__':
 
+    current_file_path = os.path.abspath(__file__)
+
+    preprocess_dir_path = os.path.dirname(current_file_path)
+    main_dir_path = os.path.dirname(os.path.dirname(current_file_path))
+    data_dir_path = os.path.join(main_dir_path, 'data')
+
+    print(current_file_path)
+    print(data_dir_path)
+
     '''
     카테고리 정보 모델에 넣주기 위해 처리해줌 
     +

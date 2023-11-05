@@ -5,15 +5,24 @@ import pickle
 
 if __name__ == "__main__":
 
+    current_file_path = os.path.abspath(__file__)
+
+    preprocess_dir_path = os.path.dirname(current_file_path)
+    main_dir_path = os.path.dirname(os.path.dirname(current_file_path))
+    data_dir_path = os.path.join(main_dir_path, 'data')
+
+    print(current_file_path)
+    print(data_dir_path)
+
     '''
     모델에 들어가기 위한 최종 feature 테이블 생성 . 
     '''
 
-    df_meta= pd.read_pickle('../data/df_meta_feature.pickle')
+    df_meta= pd.read_pickle(data_dir_path + '/df_meta_feature.pickle')
     df_meta = df_meta[['href','category_encoding','saleStatus','click_count2','click_count7','click_count30']]
 
-    df_positive = pd.read_pickle('../data/df_positive.pickle')
-    df_negative = pd.read_pickle('../data/df_negative_filter.pickle')
+    df_positive = pd.read_pickle(data_dir_path + '/df_positive.pickle')
+    df_negative = pd.read_pickle(data_dir_path + '/df_negative_filter.pickle')
     positive_datas = len(df_positive)
     negative_datas = len(df_negative)
 
@@ -47,7 +56,7 @@ if __name__ == "__main__":
     # user encode
     user_encoder = LabelEncoder()
     user_encodes = user_encoder.fit(df_category['uuid'])
-    with open('../data/user_encodes.pickle','wb') as f:
+    with open(data_dir_path + '/user_encodes.pickle','wb') as f:
         pickle.dump(user_encodes,f)
 
     df_category['uuid'] = user_encodes.transform(df_category['uuid'])
@@ -55,7 +64,7 @@ if __name__ == "__main__":
     # item encode
     item_encoder = LabelEncoder()
     item_encodes = item_encoder.fit(df_category['href'])
-    with open('../data/item_encodes.pickle','wb') as f:
+    with open(data_dir_path + '/item_encodes.pickle','wb') as f:
         pickle.dump(item_encodes,f)
 
     df_category['href'] = item_encodes.transform(df_category['href'])
@@ -105,8 +114,8 @@ if __name__ == "__main__":
     del df_category_onsale_label1['saleStatus']
     del df_category_onsale_label1['label']
     
-    df_category_.to_pickle('../data/df_feature_final.pickle')
-    df_category_onsale_label1.to_pickle('../data/df_category_onsale_label1.pickle')
+    df_category_.to_pickle(data_dir_path + '/df_feature_final.pickle')
+    df_category_onsale_label1.to_pickle(data_dir_path + '/df_category_onsale_label1.pickle')
 
     # continuous var, label 제외한 부분들이 categorical 변수
     categorical_vars = df_category_.columns[:-(2*continuous_vars_length + 1 ) ]
@@ -125,6 +134,6 @@ if __name__ == "__main__":
     state_dict['negative_datas'] = negative_datas
 
 
-    with open ('../data/state_dict.pickle','wb') as f:
+    with open (data_dir_path + '/state_dict.pickle','wb') as f:
         pickle.dump(state_dict,f)
 
