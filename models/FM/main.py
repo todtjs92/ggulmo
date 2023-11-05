@@ -18,7 +18,7 @@ if __name__ == "__main__":
 
     # 
     config = configparser.ConfigParser()
-    config.read('config.ini')
+    config.read('/home/todtjs92/ggulmo_rec/ggulmo/models/FM/config.ini')
 
     host = config['mongoDB']['host']
     port = config['mongoDB']['port']

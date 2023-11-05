@@ -3,12 +3,12 @@ import configparser
 from datetime import datetime , timedelta
 from util import get_item_parser , get_items_parser , get_newest_items_parser , get_related_items_parser
 import pandas as pd
+import sys
 # MongoDB 접속 정보 설정
 
 if __name__ == '__main__':
     config = configparser.ConfigParser()
-    config.read('./config.ini')
-    print(config.items)
+    config.read('/home/todtjs92/ggulmo_rec/ggulmo/preprocess/config.ini')
     username = config['mongoDB']['username']
     password = config['mongoDB']['password']
     host = config['mongoDB']['host']
