@@ -255,7 +255,7 @@ if __name__ == "__main__":
 
         df_pred = df_pred.loc[df_pred['href'].isin(click_items) == False]
         df_pred = df_pred.sort_values(by='score',ascending=False)
-        df_pred = df_pred.groupby('middle1').head(30).reset_index(drop=True)
+        df_pred = df_pred.groupby('middle1').head(120).reset_index(drop=True)
 
         df_pred_select = df_pred[['middle1','href']]
 
@@ -275,7 +275,7 @@ if __name__ == "__main__":
 
     # insert cold user data
     cold_df = cold_df.sort_values(by='score',ascending=False)
-    cold_df = cold_df.groupby('middle1').head(30).reset_index(drop=True)
+    cold_df = cold_df.groupby('middle1').head(120).reset_index(drop=True)
 
     cold_df_select = cold_df[['middle1','href']]
 
