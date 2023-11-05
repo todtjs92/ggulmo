@@ -262,7 +262,7 @@ if __name__ == "__main__":
         insert_data = []
         for category, group_df in df_pred_select.groupby('middle1'):
             transformed_data = {}
-            transformed_data[category] = {i: v for i, v in enumerate(group_df['href'], 1)}
+            transformed_data[category] = {str(i): v for i, v in enumerate(group_df['href'], 1)}
             insert_data.append(UpdateOne({'_id':user_decodes},{'$set':transformed_data},upsert=True))
 
         collection.bulk_write(insert_data)
@@ -282,7 +282,7 @@ if __name__ == "__main__":
     insert_data = []
     for category, group_df in cold_df_select.groupby('middle1'):
         transformed_data = {}
-        transformed_data[category] = {i: v for i, v in enumerate(group_df['href'], 1)}
+        transformed_data[category] = {str(i): v for i, v in enumerate(group_df['href'], 1)}
         insert_data.append(UpdateOne({'_id':'colduser'},{'$set':transformed_data},upsert=True))
 
     collection.bulk_write(insert_data)
