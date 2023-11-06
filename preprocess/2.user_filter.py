@@ -18,12 +18,12 @@ if __name__ == '__main__':
     '''
 
     # click data
-    df_result_get_item = pd.read_pickle('../data/df_get_item.pickle')
+    df_result_get_item = pd.read_pickle(data_dir_path + '/df_get_item.pickle')
 
     # impression data
-    df_result_get_items = pd.read_pickle('../data/df_get_items.pickle')
-    df_result_get_related_items = pd.read_pickle('../data/df_get_related_items.pickle')
-    df_result_get_newest_items = pd.read_pickle('../data/df_get_newest_items.pickle')
+    df_result_get_items = pd.read_pickle(data_dir_path + '/df_get_items.pickle')
+    df_result_get_related_items = pd.read_pickle(data_dir_path + '/df_get_related_items.pickle')
+    df_result_get_newest_items = pd.read_pickle(data_dir_path + '/df_get_newest_items.pickle')
 
 
     # user가 '' 인 것들 제거
@@ -51,7 +51,7 @@ if __name__ == '__main__':
     # click이든 imp든 적어도 2번이상 클릭한 사람들을 대상으로함
 
     df_positive = df_result_get_item.loc[df_result_get_item['uuid'].isin(user_list)]
-    df_positive.to_pickle('../data/df_positive.pickle')
+    df_positive.to_pickle(data_dir_path + '/df_positive.pickle')
 
     df_result_get_items = df_result_get_items.loc[df_result_get_items['uuid'].isin(user_list)]
     df_result_get_related_items = df_result_get_related_items.loc[df_result_get_related_items['uuid'].isin(user_list)]
@@ -60,6 +60,6 @@ if __name__ == '__main__':
     # aggregate 3 df to df_negative
 
     df_negative = pd.concat([df_result_get_items,df_result_get_related_items ,df_result_get_newest_items])
-    df_negative = df_negative.to_pickle('../data/df_negative.pickle')
+    df_negative = df_negative.to_pickle(data_dir_path + '/df_negative.pickle')
 
 

@@ -22,7 +22,7 @@ if __name__ == '__main__':
     '''
 
     # 조회수 add 한 meta 테이블
-    df_meta = pd.read_pickle('../data/df_metaview.pickle')
+    df_meta = pd.read_pickle(data_dir_path + '/df_metaview.pickle')
 
     # parse and encode category
     category1_set = set()
@@ -80,10 +80,10 @@ if __name__ == '__main__':
     df_meta['category_encoding'] = df_meta_category_encoding
 
     # 사전 저장함 .
-    with open('../data/category1_dict.pickle','wb') as f:
+    with open(data_dir_path + '/category1_dict.pickle','wb') as f:
         pickle.dump(category1_dict,f)
 
-    with open('../data/category2_dict.pickle','wb') as f:
+    with open(data_dir_path + '/category2_dict.pickle','wb') as f:
         pickle.dump(category2_dict,f)
 
 
@@ -120,4 +120,4 @@ if __name__ == '__main__':
     #
 
 
-    df_meta.to_pickle('../data/df_meta_feature.pickle')
+    df_meta.to_pickle(data_dir_path  + '/df_meta_feature.pickle')

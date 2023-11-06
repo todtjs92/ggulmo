@@ -17,7 +17,7 @@ if __name__ == '__main__':
     print(data_dir_path)
 
     config = configparser.ConfigParser()
-    config.read(preprocess_dir_path + 'config.ini')
+    config.read(preprocess_dir_path + '/config.ini')
 
     username = config['mongoDB']['username']
     password = config['mongoDB']['password']
