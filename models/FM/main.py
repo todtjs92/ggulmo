@@ -165,7 +165,7 @@ if __name__ == "__main__":
     #columns = ['user_id','href','large1','large2','middle1','middle2','salePriceidx','clickcountidx','timediffidx','salePrice','click_count','time_diff','score']
     
     
-    result_df = pd.DataFrame(columns = columns)
+
     cold_df = pd.DataFrame(columns = columns)
 
     is_cold_df = False
@@ -178,7 +178,6 @@ if __name__ == "__main__":
             print("cold_user  ", user_decodes)
             if is_cold_df == True :
                 count+=1
-                print(count)
                 continue
             
             elif is_cold_df == False :
@@ -213,12 +212,11 @@ if __name__ == "__main__":
 
                 # cold users don't need click_items
                 #df_pred = df_pred.loc[df_pred['href'].isin(click_items) == False]
-                cold_df = df_pred.groupby('middle1').head(30).reset_index(drop=True)
+                cold_df = df_pred.groupby('middle1').head(120).reset_index(drop=True)
                 is_cold_df = True
                 #user_decodes = decoding(user_encodes , df_pred['user_id'].values)
                 #df_pred = df_pred.sort_values(by='middle1')
-                result_df = pd.concat([result_df, cold_df ])
-                print(count)
+                
 
                 count +=1
                 continue
@@ -277,8 +275,8 @@ if __name__ == "__main__":
         
         #user_decodes = decoding(user_encodes , df_pred['user_id'].values)
         #df_pred = df_pred.sort_values(by='middle1')
-        #result_df = pd.concat([result_df, df_pred ])
-        print(count)
+        if count % 100 == 0:
+            print(count)
         count +=1
 
     # insert cold user data
@@ -297,6 +295,6 @@ if __name__ == "__main__":
 
 
     #print( start_time  - datetime.datetime.now() , "Predict end ")
-    #result_df.to_csv('top30_each_category_test.csv',index=False)
+
     print( start_time  - datetime.datetime.now() , "File write end ")
      
