@@ -69,8 +69,12 @@ if __name__ == '__main__':
 
         # 클릭 로그
         if func == 'get_item':
-            func, uuid, url, query, item_id, href, item_id_ret_list, cookie, current_time, upload_time  = get_item_parser(response)
-            result_get_item.append([func, uuid, url, query, item_id, href, item_id_ret_list, cookie, current_time, upload_time])
+            try:
+                func, uuid, url, query, item_id, href, item_id_ret_list, cookie, current_time, upload_time  = get_item_parser(response)
+                result_get_item.append([func, uuid, url, query, item_id, href, item_id_ret_list, cookie, current_time, upload_time])
+            except:
+                error_count +=1
+                continue
         # 검색
         elif func == 'get_items':
             func, uuid, url, query, item_id, item_id_ret_list, current_time, cookie = get_items_parser(response)
