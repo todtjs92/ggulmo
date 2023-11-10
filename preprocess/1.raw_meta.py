@@ -40,8 +40,8 @@ if __name__ == '__main__':
     result_meta = []
 
     for response in items_docs:
-        _id , title , category1_nm , category2_nm , community_nm , href  , regions , salePrice ,saleStatus ,  tdview , uploadTime = meta_parser(response)
-        result_meta.append([_id , title , category1_nm , category2_nm , community_nm , href  , regions , salePrice ,saleStatus ,  tdview , uploadTime])
+        _id , title , category1 , category2 , community_nm , href  , regions , salePrice ,saleStatus , uploadTime = meta_parser(response)
+        result_meta.append([_id , title , category1, category2 , community_nm , href  , regions , salePrice ,saleStatus , uploadTime])
 
         count += 1
         if count % 100000 == 0:
@@ -52,7 +52,7 @@ if __name__ == '__main__':
 
 
     df_result_meta = pd.DataFrame(result_meta)
-    df_result_meta.columns = ["_id" , "title" , "category1_nm" , "category2_nm" , "community_nm" , "href"  , "regions" , "salePrice" ,"saleStatus" ,  "tdview" , "uploadTime"]
+    df_result_meta.columns = ["_id" , "title" , "category1" , "category2" , "community_nm" , "href"  , "regions" , "salePrice" ,"saleStatus" , "uploadTime"]
     df_result_meta.to_pickle(data_dir_path + '/df_meta.pickle')
 
 

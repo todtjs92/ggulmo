@@ -28,14 +28,14 @@ if __name__ == '__main__':
     category1_set = set()
     category2_set = set()
 
-    def get_category(category2_nm):
-        for i in category2_nm:
+    def get_category(category):
+        for i in category:
             category1, category2 = i.split('-')
             category1_set.add(category1)
             category2_set.add(category2)
 
 
-    df_meta['category2_nm'].map(lambda x: get_category(x))
+    df_meta['category2'].map(lambda x: get_category(x))
     category1_list = list(category1_set)
     category2_list = list(category2_set)
     all_categories = len(category1_list + category2_list)
@@ -76,7 +76,7 @@ if __name__ == '__main__':
                 break
         return category_list
 
-    df_meta_category_encoding = df_meta['category2_nm'].map(lambda x: get_categorylist(x))
+    df_meta_category_encoding = df_meta['category2'].map(lambda x: get_categorylist(x))
     df_meta['category_encoding'] = df_meta_category_encoding
 
     # 사전 저장함 .

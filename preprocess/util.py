@@ -179,21 +179,17 @@ def meta_parser(response):
 
     _id = response['_id']
     title = response['title']
-    category1_nm = response['category1Name']
-    category2_nm = response['category2Name']
+    category1 = response['category1']
+    category2 = response['category2']
     community_nm = response['communityName']
     href = response['href']
     # like = doc['like']
     regions = response['regions']
     salePrice = response['salePrice']
     saleStatus = response['saleStatus']
-    try:
-        tdview = response['tdView']
-    except:
-        tdview = -1
 
     uploadTime = response['uploadTime']
-    return _id , title , category1_nm , category2_nm , community_nm , href  , regions , salePrice ,saleStatus ,  tdview , uploadTime
+    return _id , title , category1 , category2 , community_nm , href  , regions , salePrice ,saleStatus  , uploadTime
 
 
 
