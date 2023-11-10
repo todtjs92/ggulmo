@@ -76,6 +76,7 @@ if __name__ == '__main__':
                 error_count +=1
                 continue
         # 검색
+        
         elif func == 'get_items':
             func, uuid, url, query, item_id, item_id_ret_list, current_time, cookie = get_items_parser(response)
             result_get_items.append([func, uuid, url, query, item_id, item_id_ret_list, current_time, cookie])
