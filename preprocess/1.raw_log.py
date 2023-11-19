@@ -82,10 +82,12 @@ if __name__ == '__main__':
             result_get_items.append([func, uuid, url, query, item_id, item_id_ret_list, current_time, cookie])
 
         elif func == "get_related_items":
-
-            func, uuid, url, query, item_id, item_id_ret_list, current_time, cookie = get_related_items_parser(response)
-            result_get_related_items.append([func, uuid, url, query, item_id, item_id_ret_list, current_time, cookie])
-
+            try:
+                func, uuid, url, query, item_id, item_id_ret_list, current_time, cookie = get_related_items_parser(response)
+                result_get_related_items.append([func, uuid, url, query, item_id, item_id_ret_list, current_time, cookie])
+            except:
+                error_count +=1 
+                continue
         elif func == "get_newest_items":
 
             func, uuid, url, query, item_id, item_id_ret_list, current_time, cookie = get_newest_items_parser(response)
