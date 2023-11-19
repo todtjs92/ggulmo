@@ -104,7 +104,7 @@ if __name__ == "__main__":
 
     fm.linear.fc.weight.data[-3] = weight_30day
     fm.linear.fc.weight.data[-1] = weight_2day
-    print(fm.linear.fc.weight.data[-3:])
+
   
     # predict
 
@@ -174,7 +174,6 @@ if __name__ == "__main__":
         
         user_decodes = decoding(user_encodes, [user_id])[0]
         if user_decodes in cold_users :
-            print("cold_user  ", user_decodes)
             if is_cold_df == True :
                 count+=1
                 continue
@@ -274,7 +273,7 @@ if __name__ == "__main__":
         
         #user_decodes = decoding(user_encodes , df_pred['user_id'].values)
         #df_pred = df_pred.sort_values(by='middle1')
-        if count % 100 == 0:
+        if count % 1000 == 0:
             print(count)
         count +=1
 
